@@ -1,40 +1,51 @@
 package edu.knoldus
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import edu.knoldus.tweetapplication.twitter
 import twitter4j._
 import twitter4j.conf.ConfigurationBuilder
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
-class Tweeterapplication extends Instance {
+class TweeterApplication  {
 
-  def searchingTweetsOnTheBasisOfHashtag(input: String, twitter: Twitter): List[Status] = {
+  def getTwitterInstance(consumerKey: String, consumerSecret: String, accessToken: String, accessTokenSecret: String): Twitter = {
+    val configurationBuilder = new ConfigurationBuilder()
+      .setDebugEnabled(true)
+      .setOAuthConsumerKey(consumerKey)
+      .setOAuthConsumerSecret(consumerSecret)
+      .setOAuthAccessToken(accessToken)
+      .setOAuthAccessTokenSecret(accessTokenSecret)
+    new TwitterFactory(configurationBuilder.build).getInstance
+  }
 
+  def searchingTweetsOnTheBasisOfHashTag(input: String, twitter: Twitter): List[Status] = {
+
+    val count = 100
     val query = new Query(input)
-    query.setCount(100)
+    query.setCount(count)
     twitter.search(query).getTweets.asScala.toList
   }
 
   /**
     *
-    * @param inputvalue
+    * @param inputValue
     * @return
     */
-  def findingnumberoftweets(inputvalue: List[Status]): Future[Int] = Future {
+  def findingNumberOfTweets(inputValue: List[Status]): Future[Int] = Future {
 
-    inputvalue.size
+    inputValue.size
   }
 
   /**
     *
-    * @param inputvalue
+    * @param inputValue
     * @return
     */
 
-  def findingaveragetweetsperday(inputvalue: List[Status]): Future[Long] = Future {
+  def findingAverageTweetsPerDay(inputValue: List[Status]): Future[Long] = Future {
     try {
       val startingDate = "2018-01-30"
       val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -42,7 +53,7 @@ class Tweeterapplication extends Instance {
       val currentDate = "2018-02-03"
       val newDate = LocalDate.parse(currentDate, formatter)
       val diff = newDate.toEpochDay() - oldDate.toEpochDay()
-      inputvalue.size / diff
+      inputValue.size / diff
     }
     catch {
       case exception: Exception => throw (exception)
@@ -52,12 +63,12 @@ class Tweeterapplication extends Instance {
 
   /**
     *
-    * @param inputtweets
+    * @param inputTweets
     * @return
     */
-  def averageretweet(inputtweets: List[Status]): Future[Int] = Future {
+  def findAverageRetweet(inputTweets: List[Status]): Future[Int] = Future {
     try {
-      val retweetcount = inputtweets.map(_.getRetweetCount)
+      val retweetcount = inputTweets.map(_.getRetweetCount)
       retweetcount.sum / retweetcount.size
     }
     catch {
@@ -67,15 +78,15 @@ class Tweeterapplication extends Instance {
 
   /**
     *
-    * @param inputtweets
+    * @param inputTweets
     * @return
     */
 
-  def averagelikes(inputtweets: List[Status]): Future[Int] = Future {
+  def findAverageLikes(inputTweets: List[Status]): Future[Int] = Future {
 
     try{
-    val likecount = inputtweets.map(_.getFavoriteCount)
-    likecount.sum / likecount.size
+    val likeCount = inputTweets.map(_.getFavoriteCount)
+    likeCount.sum / likeCount.size
   }
     catch
       {
